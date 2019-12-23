@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.0.3 - 2019-12-23
+- Improve reporting of `.env` vs `.env.example` differences.
+
 ## 1.0.2 - 2019-12-23
 - Uses [kylekatarnls/update-helper](https://github.com/kylekatarnls/update-helper) to coordinate changes to the `.env`
   file.
