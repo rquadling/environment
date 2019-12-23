@@ -32,112 +32,73 @@ use UpdateHelper\UpdateHelperInterface;
 
 class Validation implements UpdateHelperInterface
 {
-    const VALIDATION_RESULT_OK = 0;
-    const VALIDATION_RESULT_COPIED_EXAMPLE = 1;
-    const VALIDATION_RESULT_NEW_ENTRIES = 2;
-    const VALIDATION_RESULT_OLD_ENTRIES = 4;
-
-    /** @var string[] */
-    private $messages = [];
-
-    /** @return string[] */
-    public function getMessages(): array
-    {
-        return $this->messages;
-    }
-
     // @codeCoverageIgnoreStart
     public function check(UpdateHelper $helper)
     {
-        $this->validateEnvironmentFiles(\dirname($helper->getComposerFilePath()));
-        $helper->write($this->getMessages());
+        $helper->write($this->validateEnvironmentFiles(\dirname($helper->getComposerFilePath())));
     }
 
     // @codeCoverageIgnoreEnd
 
-    protected function validateEnvironmentFiles(string $rootDirectory): int
+    /**
+     * @return string[]
+     */
+    protected function validateEnvironmentFiles(string $rootDirectory): array
     {
         $envFilename = \sprintf('%s/.env', $rootDirectory);
         $exampleFilename = \sprintf('%s.example', $envFilename);
 
-        $result = self::VALIDATION_RESULT_OK;
-        if (!\file_exists($envFilename) && \file_exists($exampleFilename)) {
-            \copy($exampleFilename, $envFilename);
-            $this->messages = [
-                '',
-                'Copied default settings from .env.example to .env',
-                '',
-                'Please review the contents of the .env file.',
-                '',
-            ];
-            $result = self::VALIDATION_RESULT_COPIED_EXAMPLE;
-        } elseif (\file_exists($envFilename) && !\file_exists($exampleFilename)) {
-            $this->messages = [
-                '',
-                'No .env.example file',
-                '',
-            ];
-        } elseif (\file_exists($envFilename) && \file_exists($exampleFilename)) {
-            $example = (new Loader($exampleFilename))->parse()->toArray();
-            $envvar = (new Loader($envFilename))->parse()->toArray();
+        $envVars = \file_exists($envFilename) ? (new Loader($envFilename))->parse()->toArray() : [];
+        $exampleEnvVars = \file_exists($exampleFilename) ? (new Loader($exampleFilename))->parse()->toArray() : [];
 
-            $toBeAdded = \array_diff_key($example, $envvar);
-            $toBeRemoved = \array_diff_key($envvar, $example);
+        $toBeAdded = \array_diff_key($exampleEnvVars, $envVars);
+        $toBeRemoved = \array_diff_key($envVars, $exampleEnvVars);
 
-            $mapper = function (array $envvars) {
-                return \array_map(
-                    function (string $newEnvVar) {
-                        static $count = 0;
+        $mapper = function (array $envvars) {
+            return \array_map(
+                function (string $newEnvVar) {
+                    static $count = 0;
 
-                        return \sprintf('%d : %s', ++$count, $newEnvVar);
-                    },
-                    \array_keys($envvars)
-                );
-            };
+                    return \sprintf('%d : %s', ++$count, $newEnvVar);
+                },
+                \array_keys($envvars)
+            );
+        };
 
-            $this->messages = [];
-            if ($toBeAdded) {
-                $this->messages = \array_merge(
-                    $this->messages,
-                    [
-                        '',
-                        'New .env entries',
-                        '================',
-                        '',
-                        'The following entries need to be added to your .env file:',
-                        '',
-                    ],
-                    $mapper($toBeAdded),
-                    [
-                        '',
-                    ]
-                );
-                $result += self::VALIDATION_RESULT_NEW_ENTRIES;
-            }
-            if ($toBeRemoved) {
-                $this->messages = \array_merge(
-                    $this->messages,
-                    [
-                        '',
-                        'Old .env entries',
-                        '================',
-                        '',
-                        'The following entries need to be removed from your .env file:',
-                        '',
-                    ],
-                    $mapper($toBeRemoved),
-                    [
-                        '',
-                    ]
-                );
-                $result += self::VALIDATION_RESULT_OLD_ENTRIES;
-            }
-        } else {
-            $this->messages = [
-                '',
-                'No .env or .env.example files',
-                '',
-            ];
+        $result = [];
+        if ($toBeAdded) {
+            $result = \array_merge(
+                $result,
+                [
+                    '',
+                    'New .env entries',
+                    '================',
+                    '',
+                    'The following entries need to be added to your .env file:',
+                    '',
+                ],
+                $mapper($toBeAdded),
+                [
+                    '',
+                ]
+            );
+        }
+        if ($toBeRemoved) {
+            $result = \array_merge(
+                $result,
+                [
+                    '',
+                    'Old .env entries',
+                    '================',
+                    '',
+                    'The following entries need to be removed from your .env file:',
+                    '',
+                ],
+                $mapper($toBeRemoved),
+                [
+                    '',
+                ]
+            );
         }
 
         return $result;
