@@ -30,7 +30,7 @@ class Environment
 {
     public static function getRoot(string $directory = __DIR__): string
     {
-        return \file_exists($envFile = \sprintf('%s/composer.json', $directory))
+        return \file_exists($envFile = \sprintf('%s/composer.json', $directory)) && \strpos($envFile, '/vendor/') === false
             ? $directory
             : self::getRoot(\dirname($directory));
     }
