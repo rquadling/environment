@@ -26,10 +26,11 @@
 
 namespace RQuadling\Environment;
 
-use Composer\Script\Event;
 use josegonzalez\Dotenv\Loader;
+use UpdateHelper\UpdateHelper;
+use UpdateHelper\UpdateHelperInterface;
 
-class Validation
+class Validation implements UpdateHelperInterface
 {
     const VALIDATION_RESULT_OK = 0;
     const VALIDATION_RESULT_COPIED_EXAMPLE = 1;
@@ -37,26 +38,24 @@ class Validation
     const VALIDATION_RESULT_OLD_ENTRIES = 4;
 
     /** @var string[] */
-    private static $messages;
+    private $messages;
+
+    /** @return string[] */
+    public function getMessages(): array
+    {
+        return $this->messages;
+    }
 
     // @codeCoverageIgnoreStart
-    public static function postAutoloadDump(Event $event)
+    public function check(UpdateHelper $helper)
     {
-        self::validateEnvironmentFiles(Environment::getRoot());
-        $event->getIO()->write(self::getMessages());
+        $this->validateEnvironmentFiles(\dirname($helper->getComposerFilePath()));
+        $helper->write($this->getMessages());
     }
 
     // @codeCoverageIgnoreEnd
 
-    /**
-     * @return string[]
-     */
-    public static function getMessages(): array
-    {
-        return self::$messages;
-    }
-
-    protected static function validateEnvironmentFiles(string $rootDirectory): int
+    protected function validateEnvironmentFiles(string $rootDirectory): int
     {
         $envFilename = \sprintf('%s/.env', $rootDirectory);
         $exampleFilename = \sprintf('%s.example', $envFilename);
@@ -64,7 +63,7 @@ class Validation
         $result = self::VALIDATION_RESULT_OK;
         if (!\file_exists($envFilename) && \file_exists($exampleFilename)) {
             \copy($exampleFilename, $envFilename);
-            self::$messages = [
+            $this->messages = [
                 '',
                 'Copied default settings from .env.example to .env',
                 '',
@@ -73,7 +72,7 @@ class Validation
             ];
             $result = self::VALIDATION_RESULT_COPIED_EXAMPLE;
         } elseif (\file_exists($envFilename) && !\file_exists($exampleFilename)) {
-            self::$messages = ['No .env.example file'];
+            $this->messages = ['No .env.example file'];
         } elseif (\file_exists($envFilename) && \file_exists($exampleFilename)) {
             $example = (new Loader($exampleFilename))->parse()->toArray();
             $envvar = (new Loader($envFilename))->parse()->toArray();
@@ -92,10 +91,10 @@ class Validation
                 );
             };
 
-            self::$messages = [];
+            $this->messages = [];
             if ($toBeAdded) {
-                self::$messages = \array_merge(
-                    self::$messages,
+                $this->messages = \array_merge(
+                    $this->messages,
                     [
                         'New .env entries',
                         '================',
@@ -111,8 +110,8 @@ class Validation
                 $result += self::VALIDATION_RESULT_NEW_ENTRIES;
             }
             if ($toBeRemoved) {
-                self::$messages = \array_merge(
-                    self::$messages,
+                $this->messages = \array_merge(
+                    $this->messages,
                     [
                         'Old .env entries',
                         '================',
@@ -128,7 +127,7 @@ class Validation
                 $result += self::VALIDATION_RESULT_OLD_ENTRIES;
             }
         } else {
-            self::$messages = ['No .env or .env.example files'];
+            $this->messages = ['No .env or .env.example files'];
         }
 
         return $result;

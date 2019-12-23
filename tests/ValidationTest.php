@@ -31,14 +31,22 @@ use RQuadlingTests\Environment\Fixtures\Validation;
 
 class ValidationTest extends TestCase
 {
+    /** @var Validation */
+    private $validator;
+
+    protected function setUp()
+    {
+        $this->validator = new Validation();
+    }
+
     public function testValidationNoExampleOrEnv()
     {
         $directory = __DIR__.'/Fixtures/NoEnvironment';
 
         $this->assertFileNotExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
-        $this->assertEquals(Validation::VALIDATION_RESULT_OK, Validation::validateEnvironmentFiles($directory));
-        $this->assertEquals(['No .env or .env.example files'], Validation::getMessages());
+        $this->assertEquals(Validation::VALIDATION_RESULT_OK, $this->validator->validateEnvironmentFiles($directory));
+        $this->assertEquals(['No .env or .env.example files'], $this->validator->getMessages());
         $this->assertFileNotExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
     }
@@ -49,7 +57,7 @@ class ValidationTest extends TestCase
 
         $this->assertFileNotExists($directory.'/.env');
         $this->assertFileExists($directory.'/.env.example');
-        $this->assertEquals(Validation::VALIDATION_RESULT_COPIED_EXAMPLE, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_COPIED_EXAMPLE, $this->validator->validateEnvironmentFiles($directory));
         $this->assertFileExists($directory.'/.env');
         $this->assertFileExists($directory.'/.env.example');
         \unlink($directory.'/.env');
@@ -62,7 +70,7 @@ class ValidationTest extends TestCase
                 'Please review the contents of the .env file.',
                 '',
             ],
-            Validation::getMessages()
+            $this->validator->getMessages()
         );
     }
 
@@ -72,7 +80,7 @@ class ValidationTest extends TestCase
 
         $this->assertFileExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
-        $this->assertEquals(Validation::VALIDATION_RESULT_OK, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_OK, $this->validator->validateEnvironmentFiles($directory));
         $this->assertFileExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
 
@@ -80,7 +88,7 @@ class ValidationTest extends TestCase
             [
                 'No .env.example file',
             ],
-            Validation::getMessages()
+            $this->validator->getMessages()
         );
     }
 
@@ -91,11 +99,11 @@ class ValidationTest extends TestCase
     {
         $this->assertFileExists($directory.'/.env');
         $this->assertFileExists($directory.'/.env.example');
-        $this->assertEquals(Validation::VALIDATION_RESULT_OK, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_OK, $this->validator->validateEnvironmentFiles($directory));
         $this->assertFileExists($directory.'/.env');
         $this->assertFileExists($directory.'/.env.example');
 
-        $this->assertEmpty(Validation::getMessages());
+        $this->assertEmpty($this->validator->getMessages());
     }
 
     public function provideMatchingDirectories()
@@ -111,7 +119,7 @@ class ValidationTest extends TestCase
         $directory = __DIR__.'/Fixtures/NewVarAdded';
         $this->assertFileExists($directory.'/.env');
 
-        $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
                 'New .env entries',
@@ -122,7 +130,7 @@ class ValidationTest extends TestCase
                 '1 : VAR_1',
                 '',
             ],
-            Validation::getMessages()
+            $this->validator->getMessages()
         );
 
         $this->assertFileExists($directory.'/.env');
@@ -133,7 +141,7 @@ class ValidationTest extends TestCase
         $directory = __DIR__.'/Fixtures/OldVarRemoved';
         $this->assertFileExists($directory.'/.env');
 
-        $this->assertEquals(Validation::VALIDATION_RESULT_OLD_ENTRIES, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_OLD_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
                 'Old .env entries',
@@ -144,7 +152,7 @@ class ValidationTest extends TestCase
                 '1 : VAR_1',
                 '',
             ],
-            Validation::getMessages()
+            $this->validator->getMessages()
         );
 
         $this->assertFileExists($directory.'/.env');
@@ -155,7 +163,7 @@ class ValidationTest extends TestCase
         $directory = __DIR__.'/Fixtures/NewAndOldVars';
         $this->assertFileExists($directory.'/.env');
 
-        $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES | Validation::VALIDATION_RESULT_OLD_ENTRIES, Validation::validateEnvironmentFiles($directory));
+        $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES | Validation::VALIDATION_RESULT_OLD_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
                 'New .env entries',
@@ -173,7 +181,7 @@ class ValidationTest extends TestCase
                 '1 : VAR_1',
                 '',
             ],
-            Validation::getMessages()
+            $this->validator->getMessages()
         );
 
         $this->assertFileExists($directory.'/.env');

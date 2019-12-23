@@ -28,7 +28,7 @@ namespace RQuadlingTests\Environment\Fixtures;
 
 class Validation extends \RQuadling\Environment\Validation
 {
-    public static function validateEnvironmentFiles(string $rootDirectory): int
+    public function validateEnvironmentFiles(string $rootDirectory): int
     {
         return parent::validateEnvironmentFiles($rootDirectory);
     }
