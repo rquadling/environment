@@ -27,6 +27,8 @@
 use josegonzalez\Dotenv\Loader;
 use RQuadling\Environment\Environment;
 
+// @codeCoverageIgnoreStart
 file_exists(Environment::getEnvironmentFilename())
     ? (new Loader(Environment::getEnvironmentFilename()))->parse()->toEnv(true)
     : null;
+// @codeCoverageIgnoreEnd
