@@ -66,6 +66,24 @@ class ValidationTest extends TestCase
         );
     }
 
+    public function testValidationEnvOnly()
+    {
+        $directory = __DIR__.'/Fixtures/EnvOnly';
+
+        $this->assertFileExists($directory.'/.env');
+        $this->assertFileNotExists($directory.'/.env.example');
+        $this->assertEquals(Validation::VALIDATION_RESULT_OK, Validation::validateEnvironmentFiles($directory));
+        $this->assertFileExists($directory.'/.env');
+        $this->assertFileNotExists($directory.'/.env.example');
+
+        $this->assertEquals(
+            [
+                'No .env.example file',
+            ],
+            Validation::getMessages()
+        );
+    }
+
     /**
      * @dataProvider provideMatchingDirectories
      */

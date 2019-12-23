@@ -72,6 +72,8 @@ class Validation
                 '',
             ];
             $result = self::VALIDATION_RESULT_COPIED_EXAMPLE;
+        } elseif (\file_exists($envFilename) && !\file_exists($exampleFilename)) {
+            self::$messages = ['No .env.example file'];
         } elseif (\file_exists($envFilename) && \file_exists($exampleFilename)) {
             $example = (new Loader($exampleFilename))->parse()->toArray();
             $envvar = (new Loader($envFilename))->parse()->toArray();
