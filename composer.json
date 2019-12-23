@@ -1,0 +1,43 @@
+{
+  "name": "rquadling/environment",
+  "description": "Autoload the .env file from the project root",
+  "authors": [
+    {
+      "name": "Richard Quadling",
+      "email": "RQuadling@GMail.com"
+    }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^7",
+    "josegonzalez/dotenv": "^3.2"
+  },
+  "require-dev": {
+    "composer/composer": "^1.9",
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpstan/phpstan": "^0.9.2",
+    "phpunit/phpunit": "^6.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "RQuadling\\Environment\\": "lib/"
+    },
+    "files": [
+      "lib/autoloader.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "RQuadlingTests\\Environment\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": "\\RQuadling\\Environment\\Validation::postAutoloadDump",
+    "cs-lint": "php-cs-fixer fix --diff -vvv --dry-run",
+    "cs-fix": "php-cs-fixer fix . -vvv || true",
+    "sa": "vendor/bin/phpstan analyse --no-progress --ansi -l 7 lib tests"
+  }
+}
