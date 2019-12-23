@@ -38,7 +38,7 @@ class Validation implements UpdateHelperInterface
     const VALIDATION_RESULT_OLD_ENTRIES = 4;
 
     /** @var string[] */
-    private $messages;
+    private $messages = [];
 
     /** @return string[] */
     public function getMessages(): array
@@ -72,7 +72,11 @@ class Validation implements UpdateHelperInterface
             ];
             $result = self::VALIDATION_RESULT_COPIED_EXAMPLE;
         } elseif (\file_exists($envFilename) && !\file_exists($exampleFilename)) {
-            $this->messages = ['No .env.example file'];
+            $this->messages = [
+                '',
+                'No .env.example file',
+                '',
+            ];
         } elseif (\file_exists($envFilename) && \file_exists($exampleFilename)) {
             $example = (new Loader($exampleFilename))->parse()->toArray();
             $envvar = (new Loader($envFilename))->parse()->toArray();
@@ -96,6 +100,7 @@ class Validation implements UpdateHelperInterface
                 $this->messages = \array_merge(
                     $this->messages,
                     [
+                        '',
                         'New .env entries',
                         '================',
                         '',
@@ -113,6 +118,7 @@ class Validation implements UpdateHelperInterface
                 $this->messages = \array_merge(
                     $this->messages,
                     [
+                        '',
                         'Old .env entries',
                         '================',
                         '',
@@ -127,7 +133,11 @@ class Validation implements UpdateHelperInterface
                 $result += self::VALIDATION_RESULT_OLD_ENTRIES;
             }
         } else {
-            $this->messages = ['No .env or .env.example files'];
+            $this->messages = [
+                '',
+                'No .env or .env.example files',
+                '',
+            ];
         }
 
         return $result;

@@ -46,7 +46,14 @@ class ValidationTest extends TestCase
         $this->assertFileNotExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
         $this->assertEquals(Validation::VALIDATION_RESULT_OK, $this->validator->validateEnvironmentFiles($directory));
-        $this->assertEquals(['No .env or .env.example files'], $this->validator->getMessages());
+        $this->assertEquals(
+            [
+                '',
+                'No .env or .env.example files',
+                '',
+            ],
+            $this->validator->getMessages()
+        );
         $this->assertFileNotExists($directory.'/.env');
         $this->assertFileNotExists($directory.'/.env.example');
     }
@@ -86,7 +93,9 @@ class ValidationTest extends TestCase
 
         $this->assertEquals(
             [
+                '',
                 'No .env.example file',
+                '',
             ],
             $this->validator->getMessages()
         );
@@ -122,6 +131,7 @@ class ValidationTest extends TestCase
         $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
+                '',
                 'New .env entries',
                 '================',
                 '',
@@ -144,6 +154,7 @@ class ValidationTest extends TestCase
         $this->assertEquals(Validation::VALIDATION_RESULT_OLD_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
+                '',
                 'Old .env entries',
                 '================',
                 '',
@@ -166,12 +177,14 @@ class ValidationTest extends TestCase
         $this->assertEquals(Validation::VALIDATION_RESULT_NEW_ENTRIES | Validation::VALIDATION_RESULT_OLD_ENTRIES, $this->validator->validateEnvironmentFiles($directory));
         $this->assertEquals(
             [
+                '',
                 'New .env entries',
                 '================',
                 '',
                 'The following entries need to be added to your .env file:',
                 '',
                 '1 : VAR_2',
+                '',
                 '',
                 'Old .env entries',
                 '================',
