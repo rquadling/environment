@@ -33,7 +33,7 @@ use UpdateHelper\UpdateHelperInterface;
 class Validation implements UpdateHelperInterface
 {
     // @codeCoverageIgnoreStart
-    public function check(UpdateHelper $helper)
+    public function check(UpdateHelper $helper): void
     {
         $helper->write($this->validateEnvironmentFiles(\dirname($helper->getComposerFilePath())));
     }
