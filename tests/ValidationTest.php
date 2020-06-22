@@ -31,10 +31,12 @@ use RQuadlingTests\Environment\Fixtures\Validation;
 
 class ValidationTest extends TestCase
 {
-    /** @var Validation */
-    private $validator;
+    private Validation $validator;
 
-    public function provideValidation()
+    /**
+     * @return array<string, array<int, array<int, string>|string>>
+     */
+    public function provideValidation(): array
     {
         return [
             '.env only' => [
@@ -125,17 +127,17 @@ class ValidationTest extends TestCase
             ];
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->validator = new Validation();
     }
 
     /**
-     * @param string[] $expectedMessages
+     * @param array<int, array<int, string>|string> $expectedMessages
      *
      * @dataProvider provideValidation
      */
-    public function testValidation(string $directory, array $expectedMessages)
+    public function testValidation(string $directory, array $expectedMessages): void
     {
         $this->assertEquals($expectedMessages, $this->validator->validateEnvironmentFiles($directory));
     }

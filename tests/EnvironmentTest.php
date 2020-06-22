@@ -31,17 +31,17 @@ use RQuadling\Environment\Environment;
 
 class EnvironmentTest extends TestCase
 {
-    public function testGetRoot()
+    public function testGetRoot(): void
     {
         $this->assertEquals(\dirname(__DIR__), Environment::getRoot());
     }
 
-    public function testGetEnvFilename()
+    public function testGetEnvFilename(): void
     {
         $this->assertEquals(\sprintf('%s/.env', \dirname(__DIR__)), Environment::getEnvironmentFilename());
     }
 
-    public function testGetRootFromDirectory()
+    public function testGetRootFromDirectory(): void
     {
         $this->assertEquals(\dirname(__DIR__), Environment::getRoot(\dirname(__DIR__).'/vendor/composer/ClassLoader.php'));
     }
