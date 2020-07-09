@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.0.1 - 2020-07-09
+- Minor code cleanup and strict typing
+- Added support for operating inside a PHAR archive
+
 ## 2.0.0 - 2020-06-22
 - Upgrade minimum PHP 7.4+
 

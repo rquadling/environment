@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * RQuadling/Environment
  *
@@ -28,11 +30,25 @@ namespace RQuadling\Environment;
 
 class Environment
 {
+    /** @var array<string, string> */
+    private static array $roots = [];
+
     public static function getRoot(string $directory = __DIR__): string
     {
-        return \file_exists($envFile = \sprintf('%s/composer.json', $directory)) && \strpos($envFile, '/vendor/') === false
-            ? $directory
-            : self::getRoot(\dirname($directory));
+        return self::$roots[$directory] ??= self::getRootForDirectory($directory);
+    }
+
+    private static function getRootForDirectory(string $directory): string
+    {
+        if ($root = \Phar::running()) {
+            // @codeCoverageIgnoreStart
+            return $root;
+        // @codeCoverageIgnoreEnd
+        } else {
+            return \file_exists($envFile = \sprintf('%s/composer.json', $directory)) && \strpos($envFile, '/vendor/') === false
+                ? $directory
+                : self::getRootForDirectory(\dirname($directory));
+        }
     }
 
     public static function getFilename(string $filename): string
